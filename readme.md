@@ -1,4 +1,4 @@
-# MobileZero
+# MobileApp
 
 <div align="center">
   <p>
