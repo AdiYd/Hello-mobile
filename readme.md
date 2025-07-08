@@ -14,12 +14,14 @@
 
 MobileZero is a comprehensive financial markets mobile application built with React Native and Expo. The app provides real-time financial data and conversion tools in an elegant, user-friendly interface.
 
-## 📸 Screenshots
+## 📸 Screenshots (Various themes)
 
 <div align="center">
   <img src="assets/darkBlue.jpeg" alt="Stock screen dark" width="250"/>
+  <img src="assets/stockBlack.jpeg" alt="Stock screen dark" width="250"/>
   <img src="assets/lightBlue.jpeg" alt="Stock screen light" width="250"/>
   <img src="assets/lightCurrency.jpeg" alt="Stock screen light" width="250"/>
+  <img src="assets/currencySelectGreen.jpeg" alt="Stock screen light" width="250"/>
   <img src="assets/darkCurrency.jpeg" alt="Stock screen light" width="250"/>
 </div>
 
