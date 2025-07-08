@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { Dimensions } from 'react-native';
-import { Stack, Text, useTheme, XStack, YStack } from 'tamagui';
+import { ColorValue, Dimensions, TouchableOpacity } from 'react-native';
+import { GetThemeValueForKey, Stack, Text, useTheme, XStack, YStack } from 'tamagui';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -8,7 +8,8 @@ export default function StockCard({ stock }: { stock: any }) {
   const isUp = Number(stock.change) > 0;
   const theme = useTheme();
   const [update, setUpdate] = React.useState(0);
-  const screenWidth = Dimensions.get('window').width - 60;
+  const [selectedRange, setSelectedRange] = React.useState<'1d' | '1w' | '1m' | '60d'>('1d');
+  const screenWidth = Dimensions.get('window').width - 40;
 
   useEffect(() => {
     if (stock) {
@@ -18,8 +19,10 @@ export default function StockCard({ stock }: { stock: any }) {
       stock.close = Number(stock.close).toFixed(2);
       stock.change = Number(stock.change).toFixed(2);
       stock.previous_close = Number(stock.previous_close).toFixed(2);
-      stock.fifty_two_week.low = Number(stock.fifty_two_week.low).toFixed(2);
-      stock.fifty_two_week.high = Number(stock.fifty_two_week.high).toFixed(2);
+      if (stock.fifty_two_week) {
+        stock.fifty_two_week.low = Number(stock.fifty_two_week.low).toFixed(2);
+        stock.fifty_two_week.high = Number(stock.fifty_two_week.high).toFixed(2);
+      }
     }
     setUpdate((prev) => prev + 1);
   }, [stock]);
@@ -37,11 +40,37 @@ export default function StockCard({ stock }: { stock: any }) {
     ]
   };
 
+  // Helper to filter time series
+  const getFilteredTimeSeries = () => {
+    if (!stock?.time_series?.values) return [];
+    const all = stock.time_series.values;
+    switch (selectedRange) {
+      case '1d':
+        // 1 day = 7 (market hours) or 24 (full day) points, but API is 1h interval, so 7 for market hours
+        return all.slice(0, 7).filter((v: any) => v.datetime.slice(0, 10) === new Date().toISOString().slice(0, 10)).reverse();
+      case '1w':
+        return all.slice(0, 7 * 5).reverse(); // 5 market days
+      case '1m':
+        return all.slice(0, 30 * 7).reverse(); // 30 market days, 7 hours per day
+      case '60d':
+        return all.slice(0, 60 * 7).reverse();
+      default:
+        return all.reverse();
+    }
+  };
+
+  const filteredSeries = getFilteredTimeSeries();
+
   const chart2Data = {
-    labels: stock.time_series.values.map((v: any) => v.datetime.slice(5)).reverse(),
+    labels: filteredSeries.map((v: any, i: number) => {
+      // Show only a few labels to avoid clutter
+      if (selectedRange === '1d') return v.datetime.slice(11, 16); // HH:MM
+      if (i % Math.ceil(filteredSeries.length / 6) === 0) return v.datetime.slice(5, 10); // MM-DD
+      return '';
+    }),
     datasets: [
       {
-        data: stock.time_series.values.map((v: any) => Number(v.close)).reverse(),
+        data: filteredSeries.map((v: any) => Number(v.close)),
       },
     ],
   };
@@ -58,19 +87,21 @@ export default function StockCard({ stock }: { stock: any }) {
     propsForLabels: {
       fontSize: 10,
     },
+    propsForDots: {
+      r: "0",
+      strokeWidth: "1",
+    },
     propsForBackgroundLines: {
-    stroke: theme.borderColorPress ? `${theme.borderColorPress.val}22` : 'rgba(113,113,122,0.013)', // 0.13 opacity
-    // strokeDasharray: '', // keep dashed, or set to '0' for solid
-  },
+    stroke: theme.borderColorPress ? `${theme.accent12.val}22` : 'rgba(113,113,122,0.013)', // 0.13 opacity
+     },
   };
-
   return (
     <Stack
       width="100%"
       rounded="$4"
       shadowColor="$shadowColor"
       shadowRadius={8}
-      p="$2"
+      p="$0.25"
       mb="$3"
     >
       <XStack items="baseline" mb="$2">
@@ -113,18 +144,55 @@ export default function StockCard({ stock }: { stock: any }) {
         </Text>
           <Text ml="$1" fontSize="$3" color="$color">52W Range: ${stock.fifty_two_week.low} - ${stock.fifty_two_week.high}</Text>
       </XStack>
+      {/* Filter bar */}
+      <XStack justify="center" gap='$2' mt='$4' mb="$2">
+        {[
+          { label: '1 Day', value: '1d' },
+          { label: '1 Week', value: '1w' },
+          { label: '1 Month', value: '1m' },
+          { label: '60 Days', value: '60d' },
+        ].map((f) => (
+          <TouchableOpacity key={f.value} onPress={() => setSelectedRange(f.value as any)}>
+            <Text
+              fontWeight={selectedRange === f.value ? 'bold' : 'normal'}
+              color={selectedRange === f.value ? '$color' : '$colorPress'}
+              borderBottomWidth={selectedRange === f.value ? 2 : 0}
+              borderBottomColor={selectedRange === f.value ? '$color' : 'transparent'}
+              px="$2"
+            >
+              {f.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </XStack>
       {/* Line chart for time series data */}
-      <Stack mb="$2" items="center">
+      <Stack
+        width={screenWidth}
+        self="center"
+        rounded={12}
+        my='$2'
+        items="center"
+      >
         <LineChart
           data={chart2Data}
           width={screenWidth}
+          yAxisLabel="$"
           height={180}
           chartConfig={chartConfig}
-          style={{ borderRadius: 8 }}
+           style={{
+            borderRadius: 16,
+            borderWidth: 0.8, 
+            borderColor: theme.borderColor.val as ColorValue,
+          }}
         />
       </Stack>
       {/* Chart section */}
-      <Stack mb="$2" items="center">
+      <Stack 
+        rounded={12}
+        self="center"
+        items='center'
+        mb={'$2'}
+        >
         <BarChart
           data={chartData}
           width={screenWidth}
@@ -133,8 +201,9 @@ export default function StockCard({ stock }: { stock: any }) {
           yAxisLabel="$"
           chartConfig={chartConfig}
           style={{
-            marginVertical: 8,
-            borderRadius: 8,
+            borderRadius: 16,
+            borderWidth: 0.8,
+            borderColor: theme.borderColor.val as ColorValue,
           }}
           fromZero
         />

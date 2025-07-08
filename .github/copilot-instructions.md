@@ -118,3 +118,16 @@ import { LineChart } from 'react-native-chart-kit';
 - API keys should be stored in environment variables or via Expo's Constants
 - Components are designed to be responsive across different device sizes
 - Make sure to handle API rate limits appropriately
+
+
+
+## Additional notes:
+- The app currently supports dark mode and light mode themes.
+- Consider adding more themes in the future for better user customization.
+- Create dynamic and reusable components.
+- Use modern styling, professional UI and great UX.
+- Use proper Typography that emphesis different sections and parts of the screen.
+- Use loaders (spiners), skeletons and other techuniqes.
+- Use fallback and 'try'-'catch' for error handling
+- Use Icons, text helpers and gesture buttons for the client to be aware of errors, missing info and genral state of the app.
+- Always use inherit styles and colors, use variables for consistent styling. (e.g '$color<number>', '$background', etc.)

@@ -11,8 +11,8 @@ import { useState } from 'react';
 const Tab = createMaterialTopTabNavigator();
 
 export default function Layout() {
-  const [themeName, setThemeName] = useState<ThemeName>('light_red');
-  const currentTheme = config.themes['light_red'];
+  const [themeName, setThemeName] = useState<ThemeName>('dark'); // Change to 'light_blue' or any other theme as needed
+  const currentTheme = config.themes[themeName as keyof typeof config.themes];
   return (
     <TamaguiProvider config={config}>
       <Theme name={themeName}>
