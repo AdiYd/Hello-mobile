@@ -14,7 +14,7 @@
 
 MobileZero is a comprehensive financial markets mobile application built with React Native and Expo. The app provides real-time financial data and conversion tools in an elegant, user-friendly interface.
 
-## 📸 Screenshots (Various themes)
+## 📸 Screenshots (themes)
 
 <div align="center">
   <img src="assets/darkBlue.jpeg" alt="Stock screen dark" width="250"/>
@@ -45,14 +45,6 @@ MobileZero is a comprehensive financial markets mobile application built with Re
 - Convert Bitcoin (BTC) to multiple fiat currencies
 - Track Bitcoin price in real-time
 - Historical Bitcoin price charts
-
-## 📸 Screenshots
-
-<div align="center">
-  <p>
-    <i>Screenshots coming soon</i>
-  </p>
-</div>
 
 ## 🚀 Getting Started
 
